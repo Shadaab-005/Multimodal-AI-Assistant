@@ -6,12 +6,12 @@
 [![Web Speech API](https://img.shields.io/badge/Web_Speech_API-1.0-blue)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API)
 [![OpenCV](https://img.shields.io/badge/OpenCV-4.8.0-5C3EE8?logo=opencv)](https://opencv.org/)
 
-![Project Demo]((https://imgur.com/a/CgI4SRu))
+![Project Demo](https://imgur.com/cpMFNun)
 
 A full-stack web application integrating Google's Gemini AI for natural voice conversations and real-time emotion analysis through webcam feed, featuring dual-modal interaction history.
 
 ## Table of Contents
-- [Features](##features)
+- [Features](#features)
 - [Demo](#demo)
 - [Installation](#installation)
 - [Usage](#usage)
