@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Assistant</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<style>
+    :root {
+    --primary-green: #4CAF50;
+    --primary-blue: #2196F3;
+    --background-light: #f8f9fa;
+    --text-dark: #2c3e50;
+    --border-light: #e0e0e0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--background-light);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 800px;
+    width: 100%;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    min-width: 160px;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.voice-btn {
+    background: var(--primary-green);
+    color: white;
+}
+
+.emotion-btn {
+    background: var(--primary-blue);
+    color: white;
+}
+
+#camera-feed {
+    margin: 20px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    display: none;
+}
+
+#live-video {
+    width: 100%;
+    height: auto;
+    transform: scaleX(-1);
+    background: #333;
+}
+
+#camera-overlay {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    color: white;
+    font-size: 14px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.response-box {
+    background: var(--background-light);
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    min-height: 60px;
+    transition: all 0.3s ease;
+}
+
+.history-box {
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.history-entry {
+    margin-bottom: 15px;
+    padding: 12px;
+    border-radius: 6px;
+    background: var(--background-light);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.user-message {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.ai-response {
+    color: #34495e;
+    margin-left: 10px;
+    white-space: pre-wrap;
+}
+
+.emotion-indicator {
+    color: #e67e22;
+    font-weight: 500;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-weight: 500;
+    padding: 10px;
+    border-radius: 5px;
+    background: #f8d7da;
+    margin: 10px 0;
+}
+</style>
+<body>
+     <div class="container">
+        <h1>AI Voice & Emotion Assistant</h1>
+        
+        <div class="button-group">
+            <button id="start-record-btn" class="btn voice-btn">🎤 Ask Your Query to AI </button>
+            <button id="detect-emotion-btn" class="btn emotion-btn">😃 Detect Emotion</button>
+        </div>
+
+        <div id="camera-feed">
+            <video id="live-video" autoplay></video>
+            <div id="camera-overlay">Camera Feed</div>
+        </div>
+
+        <div id="response-text" class="response-box"></div>
+        <div id="conversation-history" class="history-box"></div>
+    </div>
+
+
+    <!-- Include JavaScript for microphone interaction and speech synthesis -->
+    <script src="/static/script.js"></script>
+</body>
+
+<script>
+const voiceBtn = document.getElementById('start-record-btn');
+const emotionBtn = document.getElementById('detect-emotion-btn');
+const responseText = document.getElementById('response-text');
+const historyBox = document.getElementById('conversation-history');
+const videoElement = document.getElementById('live-video');
+const cameraFeed = document.getElementById('camera-feed');
+
+let isDetecting = false;
+let stream = null;
+let recognition = null;
+
+// Initialize Speech Recognition
+function initSpeechRecognition() {
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            voiceBtn.disabled = true;
+            responseText.textContent = 'Listening...';
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            processVoiceInput(transcript);
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            showError('Error in speech recognition. Please try again.');
+            voiceBtn.disabled = false;
+        };
+
+        recognition.onend = () => {
+            voiceBtn.disabled = false;
+        };
+    } else {
+        showError('Speech recognition not supported in this browser');
+    }
+}
+
+// Voice Processing
+async function processVoiceInput(transcript) {
+    try {
+        responseText.innerHTML = `<span class="user-message">You:</span> ${transcript}`;
+        
+        const response = await fetch('/process_voice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_input: transcript })
+        });
+
+        if (!response.ok) throw new Error('Network response was not OK');
+        
+        const data = await response.json();
+        updateUI(data);
+        speakResponse(data.response);
+    } catch (error) {
+        console.error('Voice processing error:', error);
+        showError('Error processing voice input');
+    }
+}
+
+// Emotion Detection
+async function toggleEmotionDetection() {
+    if (!isDetecting) {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'user',
+                    width: { ideal: 640 },
+                    height: { ideal: 480 }
+                } 
+            });
+            
+            videoElement.srcObject = stream;
+            cameraFeed.style.display = 'block';
+            
+            await new Promise((resolve) => {
+                videoElement.onloadedmetadata = () => {
+                    videoElement.play();
+                    resolve();
+                };
+            });
+
+            isDetecting = true;
+            emotionBtn.textContent = '🛑 Stop Detection';
+            processEmotionDetection();
+        } catch (error) {
+            console.error('Camera error:', error);
+            showError('Camera access denied! Please enable permissions.');
+        }
+    } else {
+        stopEmotionDetection();
+    }
+}
+
+async function processEmotionDetection() {
+    if (!isDetecting) return;
+
+    try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
+        
+        if (canvas.width === 0 || canvas.height === 0) {
+            throw new Error('Invalid video dimensions');
+        }
+
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL('image/jpeg', 0.8);
+
+        const response = await fetch('/process_emotion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: imageData })
+        });
+
+        if (!response.ok) throw new Error('Network response was not OK');
+
+        const data = await response.json();
+        updateUI(data);
+        speakResponse(data.response);
+    } catch (error) {
+        console.error('Emotion detection error:', error);
+        showError('Error processing emotion detection');
+    }
+
+    if (isDetecting) setTimeout(processEmotionDetection, 5000);
+}
+
+function stopEmotionDetection() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        videoElement.srcObject = null;
+    }
+    cameraFeed.style.display = 'none';
+    isDetecting = false;
+    emotionBtn.textContent = '😃 Detect Emotion';
+}
+
+// UI Updates
+function updateUI(data) {
+    if (data.status !== 'success') {
+        showError(data.message || 'Unknown error occurred');
+        return;
+    }
+
+    responseText.innerHTML = `
+        <span class="ai-response">AI:</span> 
+        ${data.response.replace(/\n/g, '<br>')}
+    `;
+
+    historyBox.innerHTML = data.conversation_history.map(entry => {
+        if (entry.type === 'voice') {
+            return `
+                <div class="history-entry">
+                    <div class="user-message">You: ${entry.user}</div>
+                    <div class="ai-response">AI: ${entry.ai}</div>
+                </div>
+            `;
+        }
+        return `
+            <div class="history-entry">
+                <div class="emotion-indicator">Emotion Analysis:</div>
+                <div class="ai-response">${entry.ai}</div>
+            </div>
+        `;
+    }).join('');
+
+    historyBox.scrollTop = historyBox.scrollHeight;
+}
+
+function speakResponse(text) {
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.1;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.textContent = message;
+    responseText.appendChild(errorDiv);
+    setTimeout(() => errorDiv.remove(), 5000);
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', initSpeechRecognition);
+voiceBtn.addEventListener('click', () => recognition.start());
+emotionBtn.addEventListener('click', toggleEmotionDetection);
+</script>
+</html>
