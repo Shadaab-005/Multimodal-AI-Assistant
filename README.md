@@ -6,7 +6,7 @@
 [![Web Speech API](https://img.shields.io/badge/Web_Speech_API-1.0-blue)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API)
 [![OpenCV](https://img.shields.io/badge/OpenCV-4.8.0-5C3EE8?logo=opencv)](https://opencv.org/)
 
-![Project Demo](https://imgur.com/cpMFNun)
+[![Project Demo](https://i.postimg.cc/GhkLtqHV/Screenshot-2025-02-18-235451.png)](https://postimg.cc/fJRng77f)
 
 A full-stack web application integrating Google's Gemini AI for natural voice conversations and real-time emotion analysis through webcam feed, featuring dual-modal interaction history.
 
@@ -33,7 +33,7 @@ A full-stack web application integrating Google's Gemini AI for natural voice co
   Environment-based API key management
 
 ## Demo 🎥
-*([(https://imgur.com/a/CgI4SRu)])*
+*[![Screenshot-714.png](https://i.postimg.cc/65R3RB1H/Screenshot-714.png)](https://postimg.cc/rKVM22TW)*
 
 ## Installation ⚙️
 
@@ -151,28 +151,7 @@ git push origin feature/AmazingFeature
 
 - MDN Web Docs (Web Speech API)
 
-```
 
-**To Use:**  
 
-1\. Replace placeholder text (especially in API Configuration and Demo sections)  
-
-2\. Add actual screenshots/video in the Demo section  
-
-3\. Customize badges/colors as needed  
-
-4\. Create a `requirements.txt` with:
-
-```
-
-flask==3.0.2
-
-python-dotenv==1.0.0
-
-google-generativeai==0.3.2
-
-Pillow==10.1.0
-
-```
 
 
