@@ -141,9 +141,7 @@ git push origin feature/AmazingFeature
 
 5\. Open Pull Request
 
-## License 📄
 
-Distributed under MIT License. See `LICENSE` for details.
 
 ## Acknowledgements 🙏
 
@@ -177,18 +175,4 @@ Pillow==10.1.0
 
 ```
 
-**Key Features of this README:**  
 
-✅ Professional visual presentation  
-
-✅ Clear installation/usage instructions  
-
-✅ Modular tech stack breakdown  
-
-✅ Contribution guidelines  
-
-✅ Responsive design elements  
-
-✅ License/attribution compliance
-
-Let me know if you need help creating the requirements.txt or any other components!
