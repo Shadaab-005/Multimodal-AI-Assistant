@@ -10,16 +10,6 @@
 
 A full-stack web application integrating Google's Gemini AI for natural voice conversations and real-time emotion analysis through webcam feed, featuring dual-modal interaction history.
 
-## Table of Contents
-- [Features](#features)
-- [Demo](#demo)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Tech Stack](#tech-stack)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
-
 ## Features ✨
 - 🎤 **Voice Interaction**  
   Real-time speech-to-text conversion with Web Speech API + AI responses
@@ -41,9 +31,10 @@ A full-stack web application integrating Google's Gemini AI for natural voice co
 ```bash
 git clone https://github.com/yourusername/ai-voice-emotion-assistant.git
 cd ai-voice-emotion-assistant
+```
 
 
-2\. **Set Up Virtual Environment**
+2. **Set Up Virtual Environment**
 
 ```bash
 
