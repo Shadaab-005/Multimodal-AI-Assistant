@@ -11,7 +11,7 @@
 A full-stack web application integrating Google's Gemini AI for natural voice conversations and real-time emotion analysis through webcam feed, featuring dual-modal interaction history.
 
 ## Table of Contents
-- [Features](#features)
+- [Features](##features)
 - [Demo](#demo)
 - [Installation](#installation)
 - [Usage](#usage)
